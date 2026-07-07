@@ -10,6 +10,8 @@
 
 **Note (added after Task 2):** Prisma is pinned to v6.19.3, not the latest v7 — Prisma 7 requires driver-adapter-based `PrismaClient` construction, which breaks the plain `new PrismaClient()` pattern this plan's tasks use in `src/lib/prisma.ts` and `prisma/seed.ts`. Any later task touching Prisma client construction or `prisma/schema.prisma` should keep this pin in mind rather than upgrading unprompted.
 
+**Note (added after Task 6):** `create-next-app@latest` (Task 1) resolved to Next.js 16.2.10, not 15 as originally planned. Next 16 requires `searchParams` and `params` in Server Components to be awaited (they are `Promise`-typed), not accessed synchronously as plain objects. Task 6's login page was adapted for this already. **Task 9 (transactions page) uses `searchParams: { accountId?: string; categoryId?: string; month?: string }` as a plain synchronous prop in its code listing below — that must be changed to `searchParams: Promise<{...}>` and awaited at the top of the component**, following the same pattern Task 6 used. Any other later task that reads `searchParams`/`params` in a Server Component must do the same.
+
 ## Global Constraints
 
 - Single user only — password stored as a bcrypt hash in `APP_PASSWORD_HASH` env var, no signup/registration flow.

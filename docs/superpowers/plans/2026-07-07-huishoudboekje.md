@@ -8,6 +8,8 @@
 
 **Tech Stack:** Next.js 15 (App Router, TypeScript, src dir), Tailwind CSS, Prisma + Neon Postgres, bcryptjs, jose (JWT), papaparse (CSV), Recharts, Vitest, Zod (form validation).
 
+**Note (added after Task 2):** Prisma is pinned to v6.19.3, not the latest v7 — Prisma 7 requires driver-adapter-based `PrismaClient` construction, which breaks the plain `new PrismaClient()` pattern this plan's tasks use in `src/lib/prisma.ts` and `prisma/seed.ts`. Any later task touching Prisma client construction or `prisma/schema.prisma` should keep this pin in mind rather than upgrading unprompted.
+
 ## Global Constraints
 
 - Single user only — password stored as a bcrypt hash in `APP_PASSWORD_HASH` env var, no signup/registration flow.

@@ -1,0 +1,86 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum CategoryType {
+  INCOME
+  EXPENSE
+}
+
+enum AccountType {
+  BANK
+  SAVINGS
+  CASH
+}
+
+model Account {
+  id             String          @id @default(cuid())
+  name           String
+  type           AccountType
+  startBalance   Decimal         @db.Decimal(10, 2)
+  createdAt      DateTime        @default(now())
+  transactions   Transaction[]
+  recurringRules RecurringRule[]
+}
+
+model Category {
+  id             String          @id @default(cuid())
+  name           String
+  type           CategoryType
+  color          String
+  createdAt      DateTime        @default(now())
+  transactions   Transaction[]
+  recurringRules RecurringRule[]
+  budget         Budget?
+  rules          CategoryRule[]
+}
+
+model Transaction {
+  id          String   @id @default(cuid())
+  amount      Decimal  @db.Decimal(10, 2)
+  date        DateTime
+  description String
+  accountId   String
+  account     Account  @relation(fields: [accountId], references: [id])
+  categoryId  String
+  category    Category @relation(fields: [categoryId], references: [id])
+  createdAt   DateTime @default(now())
+
+  @@index([accountId])
+  @@index([categoryId])
+  @@index([date])
+}
+
+model RecurringRule {
+  id              String    @id @default(cuid())
+  description     String
+  amount          Decimal   @db.Decimal(10, 2)
+  categoryId      String
+  category        Category  @relation(fields: [categoryId], references: [id])
+  accountId       String
+  account         Account   @relation(fields: [accountId], references: [id])
+  dayOfMonth      Int
+  startDate       DateTime
+  endDate         DateTime?
+  lastGeneratedOn DateTime?
+  createdAt       DateTime  @default(now())
+}
+
+model Budget {
+  id         String   @id @default(cuid())
+  categoryId String   @unique
+  category   Category @relation(fields: [categoryId], references: [id])
+  amount     Decimal  @db.Decimal(10, 2)
+}
+
+model CategoryRule {
+  id         String   @id @default(cuid())
+  keyword    String
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id])
+}

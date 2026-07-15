@@ -32,7 +32,7 @@ export default async function CategoriesPage() {
                 type="number"
                 step="0.01"
                 min="0"
-                placeholder="Budget/mnd"
+                placeholder="Maandbudget"
                 defaultValue={
                   category.budget ? Number(category.budget.amount) : ""
                 }

@@ -1,3 +1,5 @@
+import { prisma } from "@/lib/prisma";
+
 export interface RecurringRuleLike {
   dayOfMonth: number;
   startDate: Date;
@@ -46,4 +48,40 @@ export function generateDueDates(
   }
 
   return dates;
+}
+
+export async function syncRecurringTransactions(): Promise<void> {
+  const rules = await prisma.recurringRule.findMany();
+  const today = new Date();
+
+  for (const rule of rules) {
+    const dueDates = generateDueDates(
+      {
+        dayOfMonth: rule.dayOfMonth,
+        startDate: rule.startDate,
+        endDate: rule.endDate,
+        lastGeneratedOn: rule.lastGeneratedOn,
+      },
+      today,
+    );
+    if (dueDates.length === 0) continue;
+
+    await prisma.$transaction([
+      ...dueDates.map((date) =>
+        prisma.transaction.create({
+          data: {
+            amount: rule.amount,
+            date,
+            description: rule.description,
+            accountId: rule.accountId,
+            categoryId: rule.categoryId,
+          },
+        }),
+      ),
+      prisma.recurringRule.update({
+        where: { id: rule.id },
+        data: { lastGeneratedOn: dueDates[dueDates.length - 1] },
+      }),
+    ]);
+  }
 }

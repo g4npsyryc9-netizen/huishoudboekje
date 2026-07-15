@@ -26,6 +26,7 @@ export async function deleteCategory(formData: FormData) {
   }
   await prisma.$transaction([
     prisma.budget.deleteMany({ where: { categoryId: id } }),
+    prisma.recurringRule.deleteMany({ where: { categoryId: id } }),
     prisma.category.delete({ where: { id } }),
   ]);
   revalidatePath("/categories");

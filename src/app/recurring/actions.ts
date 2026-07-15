@@ -2,16 +2,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
-
-// Parse a "YYYY-MM-DD" input as local-time components, matching how
-// generateDueDates builds its due dates (new Date(year, month, day)) —
-// new Date("YYYY-MM-DD") would parse as UTC midnight instead, causing
-// off-by-one-day mismatches against those local-time due dates (see
-// src/app/transactions/actions.ts for the same fix applied earlier).
-function parseLocalDate(value: string): Date {
-  const [year, month, day] = value.split("-").map(Number);
-  return new Date(year, month - 1, day);
-}
+import { parseLocalDate } from "@/lib/date";
 
 export async function createRecurringRule(formData: FormData) {
   const description = String(formData.get("description") ?? "").trim();

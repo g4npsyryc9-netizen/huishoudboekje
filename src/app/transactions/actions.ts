@@ -2,16 +2,11 @@
 
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+import { parseLocalDate } from "@/lib/date";
 
 export async function createTransaction(formData: FormData) {
   const amount = Number(formData.get("amount"));
-  // Parse the "YYYY-MM-DD" input as local-time components, matching how
-  // the month filter builds its date range — new Date("YYYY-MM-DD") would
-  // parse as UTC midnight instead, causing off-by-one-day filter mismatches.
-  const [year, month, day] = String(formData.get("date"))
-    .split("-")
-    .map(Number);
-  const date = new Date(year, month - 1, day);
+  const date = parseLocalDate(String(formData.get("date")));
   const description = String(formData.get("description") ?? "").trim();
   const accountId = String(formData.get("accountId"));
   const categoryId = String(formData.get("categoryId"));

@@ -11,6 +11,11 @@ const sampleCsvWithInvalidRow =
   '"20260115","ALBERT HEIJN 1234","NL01INGB0001234567","NL02ABNA0009876543","BA","Af","25,50","Betaalautomaat","Pasvolgnr: 001"\n' +
   '"20260116","KAPOTTE RIJ","NL01INGB0001234567","NL02ABNA0009876543","BA","Af","","Betaalautomaat","geen bedrag"\n';
 
+const sampleCsvWithBadDate =
+  '"Datum","Naam / Omschrijving","Rekening","Tegenrekening","Code","Af Bij","Bedrag (EUR)","Mutatiesoort","Mededelingen"\n' +
+  '"","LEGE DATUM","NL01INGB0001234567","NL02ABNA0009876543","BA","Af","10,00","Betaalautomaat","geen datum"\n' +
+  '"202601","AFGEKAPTE DATUM","NL01INGB0001234567","NL02ABNA0009876543","BA","Af","10,00","Betaalautomaat","onvolledige datum"\n';
+
 describe("parseIngCsv", () => {
   it("parses ING rows into structured transactions", () => {
     const rows = parseIngCsv(sampleCsv);
@@ -43,5 +48,12 @@ describe("parseIngCsv", () => {
     expect(rows[0].valid).toBe(true);
     expect(rows[1].valid).toBe(false);
     expect(rows[1].description).toBe("KAPOTTE RIJ");
+  });
+
+  it("marks rows with an empty or truncated date as invalid instead of guessing a date", () => {
+    const rows = parseIngCsv(sampleCsvWithBadDate);
+    expect(rows).toHaveLength(2);
+    expect(rows[0].valid).toBe(false);
+    expect(rows[1].valid).toBe(false);
   });
 });

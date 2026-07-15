@@ -42,7 +42,10 @@ export function parseIngCsv(fileContent: string): ParsedRow[] {
     const direction = row["Af Bij"] === "Bij" ? "IN" : "AF";
 
     const valid =
-      amountStr !== "" && !Number.isNaN(amount) && !Number.isNaN(date.getTime());
+      /^\d{8}$/.test(dateStr) &&
+      amountStr !== "" &&
+      !Number.isNaN(amount) &&
+      !Number.isNaN(date.getTime());
 
     return {
       date,

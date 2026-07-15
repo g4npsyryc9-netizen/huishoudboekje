@@ -49,30 +49,45 @@ export async function previewImport(
 
   const withDuplicates = markDuplicates(parsed, existingPlain);
 
-  const rows: PreviewRow[] = withDuplicates.map((row) => {
-    if (!row.valid) {
+  const rows: PreviewRow[] = withDuplicates.map((row, index) => {
+    try {
+      if (!row.valid) {
+        return {
+          date: Number.isNaN(row.date.getTime()) ? "" : row.date.toISOString(),
+          description: row.description,
+          amount: row.amount,
+          direction: row.direction,
+          categoryId: "",
+          categoryName: "-",
+          isDuplicate: false,
+          valid: false,
+        };
+      }
+      const categoryId = matchCategory(row.description, rules, row.direction);
       return {
-        date: Number.isNaN(row.date.getTime()) ? "" : row.date.toISOString(),
+        date: row.date.toISOString(),
         description: row.description,
         amount: row.amount,
         direction: row.direction,
+        categoryId,
+        categoryName: categoryNameById.get(categoryId) ?? "Onbekend",
+        isDuplicate: row.isDuplicate,
+        valid: true,
+      };
+    } catch (e) {
+      // A single malformed row should never crash the whole import preview.
+      console.error(`Fout bij verwerken van CSV-rij ${index + 1}:`, e);
+      return {
+        date: "",
+        description: row.description ?? "",
+        amount: 0,
+        direction: row.direction ?? "AF",
         categoryId: "",
         categoryName: "-",
         isDuplicate: false,
         valid: false,
       };
     }
-    const categoryId = matchCategory(row.description, rules, row.direction);
-    return {
-      date: row.date.toISOString(),
-      description: row.description,
-      amount: row.amount,
-      direction: row.direction,
-      categoryId,
-      categoryName: categoryNameById.get(categoryId) ?? "Onbekend",
-      isDuplicate: row.isDuplicate,
-      valid: true,
-    };
   });
 
   return { rows, error: null };

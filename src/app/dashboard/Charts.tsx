@@ -12,6 +12,7 @@ import {
   YAxis,
   CartesianGrid,
 } from "recharts";
+import { formatEuro } from "@/lib/money";
 
 export function CategoryPieChart({
   data,
@@ -28,7 +29,7 @@ export function CategoryPieChart({
             <Cell key={i} fill={entry.color} />
           ))}
         </Pie>
-        <Tooltip formatter={(value) => `€ ${Number(value).toFixed(2)}`} />
+        <Tooltip formatter={(value) => formatEuro(Number(value))} />
       </PieChart>
     </ResponsiveContainer>
   );
@@ -45,7 +46,7 @@ export function TrendLineChart({
         <CartesianGrid strokeDasharray="3 3" />
         <XAxis dataKey="month" />
         <YAxis />
-        <Tooltip formatter={(value) => `€ ${Number(value).toFixed(2)}`} />
+        <Tooltip formatter={(value) => formatEuro(Number(value))} />
         <Line type="monotone" dataKey="inkomsten" stroke="#16A34A" />
         <Line type="monotone" dataKey="uitgaven" stroke="#DC2626" />
       </LineChart>

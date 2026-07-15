@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { previewImport, confirmImport, type PreviewRow } from "./actions";
+import { formatEuro } from "@/lib/money";
 
 export default function ImportForm({
   accounts,
@@ -93,7 +94,7 @@ export default function ImportForm({
                       {row.date ? new Date(row.date).toLocaleDateString("nl-NL") : "-"}
                     </td>
                     <td>{row.description}</td>
-                    <td>€ {row.amount.toFixed(2)}</td>
+                    <td>{formatEuro(row.amount)}</td>
                     <td>{row.categoryName}</td>
                     <td>
                       {!row.valid

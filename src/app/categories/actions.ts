@@ -24,7 +24,10 @@ export async function deleteCategory(formData: FormData) {
       `Kan categorie niet verwijderen: er zijn nog ${count} gekoppelde transacties.`,
     );
   }
-  await prisma.category.delete({ where: { id } });
+  await prisma.$transaction([
+    prisma.budget.deleteMany({ where: { categoryId: id } }),
+    prisma.category.delete({ where: { id } }),
+  ]);
   revalidatePath("/categories");
 }
 

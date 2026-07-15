@@ -22,6 +22,10 @@ export function generateDueDates(
   if (rule.lastGeneratedOn) {
     cursorYear = rule.lastGeneratedOn.getFullYear();
     cursorMonth = rule.lastGeneratedOn.getMonth() + 1; // start the month after
+    if (cursorMonth > 11) {
+      cursorMonth = 0;
+      cursorYear += 1;
+    }
   } else {
     cursorYear = rule.startDate.getFullYear();
     cursorMonth = rule.startDate.getMonth();

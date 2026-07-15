@@ -58,6 +58,19 @@ describe("generateDueDates", () => {
     expect(dates).toEqual([new Date(2026, 2, 1)]);
   });
 
+  it("rolls over from December to January without duplicating the date", () => {
+    const dates = generateDueDates(
+      {
+        dayOfMonth: 1,
+        startDate: new Date(2025, 0, 1),
+        endDate: null,
+        lastGeneratedOn: new Date(2025, 11, 1), // dec 2025 al gegenereerd
+      },
+      new Date(2026, 0, 15), // 15 jan 2026
+    );
+    expect(dates).toEqual([new Date(2026, 0, 1)]);
+  });
+
   it("stops generating after endDate", () => {
     const dates = generateDueDates(
       {

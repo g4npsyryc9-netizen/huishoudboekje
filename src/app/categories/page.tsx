@@ -1,5 +1,11 @@
 import { prisma } from "@/lib/prisma";
-import { createCategory, deleteCategory, setBudget } from "./actions";
+import {
+  createCategory,
+  deleteCategory,
+  setBudget,
+  createCategoryRule,
+  deleteCategoryRule,
+} from "./actions";
 import DeleteButton from "@/components/DeleteButton";
 
 export default async function CategoriesPage() {
@@ -7,6 +13,13 @@ export default async function CategoriesPage() {
     include: { budget: true },
     orderBy: { name: "asc" },
   });
+
+  const [rules] = await Promise.all([
+    prisma.categoryRule.findMany({
+      include: { category: true },
+      orderBy: { keyword: "asc" },
+    }),
+  ]);
 
   return (
     <div className="space-y-6">
@@ -80,6 +93,44 @@ export default async function CategoriesPage() {
           Toevoegen
         </button>
       </form>
+
+      <div className="space-y-3 rounded border bg-white p-4">
+        <h2 className="font-medium">Categorisatieregels (voor CSV-import)</h2>
+        <ul className="divide-y">
+          {rules.map((rule) => (
+            <li key={rule.id} className="flex items-center justify-between py-2">
+              <span className="text-sm">
+                &quot;{rule.keyword}&quot; → {rule.category.name}
+              </span>
+              <DeleteButton
+                action={deleteCategoryRule}
+                id={rule.id}
+                confirmMessage={`Regel "${rule.keyword}" verwijderen?`}
+              />
+            </li>
+          ))}
+          {rules.length === 0 && (
+            <li className="py-2 text-sm text-gray-500">Nog geen regels.</li>
+          )}
+        </ul>
+        <form action={createCategoryRule} className="flex gap-2">
+          <input
+            name="keyword"
+            placeholder="Trefwoord (bijv. Albert Heijn)"
+            required
+            className="flex-1 rounded border px-3 py-2 text-sm"
+          />
+          <select name="categoryId" required className="rounded border px-3 py-2 text-sm">
+            <option value="">Kies categorie</option>
+            {categories.map((c) => (
+              <option key={c.id} value={c.id}>{c.name}</option>
+            ))}
+          </select>
+          <button type="submit" className="rounded bg-blue-600 px-3 py-2 text-sm text-white">
+            Toevoegen
+          </button>
+        </form>
+      </div>
     </div>
   );
 }

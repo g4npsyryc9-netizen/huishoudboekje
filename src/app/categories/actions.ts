@@ -27,6 +27,7 @@ export async function deleteCategory(formData: FormData) {
   await prisma.$transaction([
     prisma.budget.deleteMany({ where: { categoryId: id } }),
     prisma.recurringRule.deleteMany({ where: { categoryId: id } }),
+    prisma.categoryRule.deleteMany({ where: { categoryId: id } }),
     prisma.category.delete({ where: { id } }),
   ]);
   revalidatePath("/categories");
@@ -49,5 +50,20 @@ export async function setBudget(formData: FormData) {
       create: { categoryId, amount },
     });
   }
+  revalidatePath("/categories");
+}
+
+export async function createCategoryRule(formData: FormData) {
+  const keyword = String(formData.get("keyword") ?? "").trim();
+  const categoryId = String(formData.get("categoryId"));
+  if (!keyword) throw new Error("Trefwoord is verplicht");
+
+  await prisma.categoryRule.create({ data: { keyword, categoryId } });
+  revalidatePath("/categories");
+}
+
+export async function deleteCategoryRule(formData: FormData) {
+  const id = String(formData.get("id"));
+  await prisma.categoryRule.delete({ where: { id } });
   revalidatePath("/categories");
 }

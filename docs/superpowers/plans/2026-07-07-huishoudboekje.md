@@ -12,6 +12,8 @@
 
 **Note (added after Task 6):** `create-next-app@latest` (Task 1) resolved to Next.js 16.2.10, not 15 as originally planned. Next 16 requires `searchParams` and `params` in Server Components to be awaited (they are `Promise`-typed), not accessed synchronously as plain objects. Task 6's login page was adapted for this already. **Task 9 (transactions page) uses `searchParams: { accountId?: string; categoryId?: string; month?: string }` as a plain synchronous prop in its code listing below — that must be changed to `searchParams: Promise<{...}>` and awaited at the top of the component**, following the same pattern Task 6 used. Any other later task that reads `searchParams`/`params` in a Server Component must do the same.
 
+**Note (added after Task 8):** `deleteCategory` (`src/app/categories/actions.ts`) originally only guarded against linked `Transaction` rows and was later fixed to also delete the category's `Budget` row first (in a `$transaction`) so a budgeted category can still be deleted. The same FK-RESTRICT problem exists for `RecurringRule.category` and `CategoryRule.category` (schema has no `onDelete` policy on either relation) — neither is reachable yet since no UI creates those rows until Tasks 11 and 14. **When Task 11 (recurring rules) and Task 14 (category rules) are implemented, `deleteCategory` must be extended to also delete any linked `RecurringRule` and `CategoryRule` rows inside the same `$transaction`** before deleting the category — same treatment as `Budget`: these are category attributes/config, not transaction data, so they should be cleaned up automatically rather than block deletion.
+
 ## Global Constraints
 
 - Single user only — password stored as a bcrypt hash in `APP_PASSWORD_HASH` env var, no signup/registration flow.

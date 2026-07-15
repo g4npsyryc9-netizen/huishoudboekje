@@ -1,7 +1,6 @@
 import { prisma } from "@/lib/prisma";
-import { formatEuro, signedAmount } from "@/lib/money";
-import { createTransaction, deleteTransaction } from "./actions";
-import DeleteButton from "@/components/DeleteButton";
+import { createTransaction } from "./actions";
+import TransactionRow from "./TransactionRow";
 
 export default async function TransactionsPage({
   searchParams,
@@ -62,31 +61,25 @@ export default async function TransactionsPage({
 
       <ul className="divide-y rounded border bg-white">
         {transactions.map((t) => (
-          <li key={t.id} className="flex items-center justify-between p-3">
-            <div>
-              <p className="font-medium">{t.description}</p>
-              <p className="text-sm text-gray-500">
-                {t.date.toLocaleDateString("nl-NL")} · {t.account.name} ·{" "}
-                {t.category.name}
-              </p>
-            </div>
-            <div className="flex items-center gap-3">
-              <span
-                className={
-                  t.category.type === "INCOME"
-                    ? "text-green-600"
-                    : "text-red-600"
-                }
-              >
-                {formatEuro(signedAmount(Number(t.amount), t.category.type))}
-              </span>
-              <DeleteButton
-                action={deleteTransaction}
-                id={t.id}
-                confirmMessage="Transactie verwijderen?"
-              />
-            </div>
-          </li>
+          <TransactionRow
+            key={t.id}
+            transaction={{
+              id: t.id,
+              amount: Number(t.amount),
+              date: t.date,
+              description: t.description,
+              accountId: t.accountId,
+              categoryId: t.categoryId,
+              account: { id: t.account.id, name: t.account.name },
+              category: {
+                id: t.category.id,
+                name: t.category.name,
+                type: t.category.type,
+              },
+            }}
+            accounts={accounts}
+            categories={categories}
+          />
         ))}
         {transactions.length === 0 && (
           <li className="p-3 text-sm text-gray-500">Geen transacties gevonden.</li>

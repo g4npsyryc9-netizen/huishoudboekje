@@ -2,6 +2,10 @@
 
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+import {
+  FALLBACK_INCOME_CATEGORY_ID,
+  FALLBACK_EXPENSE_CATEGORY_ID,
+} from "@/lib/constants";
 
 export async function createCategory(formData: FormData) {
   const name = String(formData.get("name") ?? "").trim();
@@ -18,6 +22,11 @@ export async function createCategory(formData: FormData) {
 
 export async function deleteCategory(formData: FormData) {
   const id = String(formData.get("id"));
+  if (id === FALLBACK_INCOME_CATEGORY_ID || id === FALLBACK_EXPENSE_CATEGORY_ID) {
+    throw new Error(
+      "Deze categorie wordt gebruikt door CSV-import voor niet-herkende transacties en kan niet verwijderd worden.",
+    );
+  }
   const count = await prisma.transaction.count({ where: { categoryId: id } });
   if (count > 0) {
     throw new Error(

@@ -26,6 +26,14 @@ export async function deleteAccount(formData: FormData) {
       `Kan rekening niet verwijderen: er zijn nog ${count} gekoppelde transacties.`,
     );
   }
+  const recurringCount = await prisma.recurringRule.count({
+    where: { accountId: id },
+  });
+  if (recurringCount > 0) {
+    throw new Error(
+      `Kan rekening niet verwijderen: er zijn nog ${recurringCount} gekoppelde terugkerende posten.`,
+    );
+  }
   await prisma.account.delete({ where: { id } });
   revalidatePath("/accounts");
 }
